@@ -1,10 +1,7 @@
 package com.felipesouza.usuario.infrastructure.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +16,7 @@ import java.util.List;
 @Entity     //Aponta para o spring que é uma tabela do banco de dados
 @Table(name = "usuario")    //Indica o nome da tabela, caso não indique usa como default o nome da classe
 //UserDetails é uma classe do spring security, para que o Usuario seja validado como usuario de login
+@Builder
 public class Usuario implements UserDetails {
 
     @Id     //Identificador único
