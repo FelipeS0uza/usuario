@@ -1,6 +1,5 @@
 package com.felipesouza.usuario.business.dto;
 
-
 import lombok.*;
 
 @Getter
