@@ -52,26 +52,38 @@ public class UsuarioService {
         return usuarioRepository.existsByEmail(email);  //Existe=true   Não Existe=false
     }
 
+    //Metodo que busca o usuario pelo email
     public Usuario buscarUsuarioPorEmail(String email) {
         return usuarioRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(
                 "Email não encontrado " + email
         ));
     }
 
+    //Metodo que deleta o usuario pelo email
     public void deletarUsuarioPorEmail(String email) {
         usuarioRepository.deleteByEmail(email);
     }
 
+    //Metodo que atualiza os dados do usuario autenticado somente
+    //Recebe o token de autenticação e extrai o email dele
     public UsuarioDTO atualizaDadosUsuario(String token, UsuarioDTO dto) {
+        //Exclui a palavra Bearer , extrai o token JWT e a partir dele extrai o email
         String email = jwtUtil.extractUsername(token.substring(7));
 
+        //Caso a senha seja informada para atualizar, então será encriptografada novamente, caso contrário nada será feito
         dto.setSenha(dto.getSenha() != null ? passwordEncoder.encode(dto.getSenha()) : null);
 
+        //Vai no usuarioRepository para buscar os dados do usuario no banco de dados
         Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() ->
+                //Erro caso o email não estaja cadastrado, difícil de ocorrer pois o email é extraido do token autenticado
+                //Mas como na repository usamos um Optional, é obrigatório a criação de exceção de erro
                 new ResourceNotFoundException("Email não localizado"));
 
+        //Salva os dados já atualizados em uma variavel, utilizando o update implementado no converter
+        //recebendo como parametro o dto para os novos dados e usuarioEntity que são os dados atuais no banco de dados
         Usuario usuario = usuarioConverter.updateUsuario(dto, usuarioEntity);
 
+        //Salvou os dados do usuario  convertido e depois converteu o retorno para UsuarioDTO
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }
 }

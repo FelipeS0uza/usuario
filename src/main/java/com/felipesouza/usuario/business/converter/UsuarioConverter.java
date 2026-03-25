@@ -96,14 +96,18 @@ public class UsuarioConverter {
                 .build();
     }
 
+    //Aqui será passado os dados para atualizar, porém foi usado o operador ternário em nome, email e senha para que
+    //não seja necessário informar todos os dados novamente, somente o que será alterado
     public Usuario updateUsuario(UsuarioDTO usuario, Usuario entity) {
         return Usuario.builder()
+                //Se for informado nome para ser alterado, então enviará o novo dado,
+                //mas se não for informado nada(null) então busca o nome que já possui cadastrado na entity.
                 .nome(usuario.getNome() != null ? usuario.getNome() : entity.getNome())
-                .id(entity.getId())
+                .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .email(usuario.getEmail() != null ? usuario.getEmail() : entity.getEmail())
                 .senha(usuario.getSenha() != null ? usuario.getSenha() : entity.getSenha())
-                .enderecos(entity.getEnderecos())
-                .telefones(entity.getTelefones())
+                .enderecos(entity.getEnderecos())   //Por se tratar de um relacionamento, será implementado de outra forma
+                .telefones(entity.getTelefones())   //Por se tratar de um relacionamento, será implementado de outra forma
                 .build();
     }
 }
