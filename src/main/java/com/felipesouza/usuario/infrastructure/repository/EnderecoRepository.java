@@ -1,9 +1,9 @@
 package com.felipesouza.usuario.infrastructure.repository;
 
-import com.felipesouza.usuario.infrastructure.entity.Telefone;
+import com.felipesouza.usuario.infrastructure.entity.Endereco;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface EnderecoRepository extends JpaRepository<Telefone, Long> {
+public interface EnderecoRepository extends JpaRepository<Endereco, Long> {
 }
