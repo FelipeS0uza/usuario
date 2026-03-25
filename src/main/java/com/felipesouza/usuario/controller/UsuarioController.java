@@ -1,8 +1,9 @@
 package com.felipesouza.usuario.controller;
 
 import com.felipesouza.usuario.business.UsuarioService;
+import com.felipesouza.usuario.business.dto.EnderecoDTO;
+import com.felipesouza.usuario.business.dto.TelefoneDTO;
 import com.felipesouza.usuario.business.dto.UsuarioDTO;
-import com.felipesouza.usuario.infrastructure.entity.Usuario;
 import com.felipesouza.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,7 @@ public class UsuarioController {
     @GetMapping   //Indica que o metodo é um GET
     //RequestParam indica que estou passando um parametro no corpo da requisição, nesse caso o email
     //Busca os dados somente do email informado
-    public ResponseEntity<Usuario> buscaUsuarioPorEmail(@RequestParam("email") String email ) {
+    public ResponseEntity<UsuarioDTO> buscaUsuarioPorEmail(@RequestParam("email") String email ) {
         return ResponseEntity.ok(usuarioService.buscarUsuarioPorEmail(email));
     }
 
@@ -61,4 +62,34 @@ public class UsuarioController {
         //Caso esteja tudo ok, então salva os dados atualizados do usuario no bando de dados
         return ResponseEntity.ok(usuarioService.atualizaDadosUsuario(token, dto));
     }
+
+    @PutMapping("/endereco")
+    public ResponseEntity<EnderecoDTO> atualizaEndereco(@RequestBody EnderecoDTO dto, @RequestParam ("id") Long id) {
+        return ResponseEntity.ok(usuarioService.atualizaEndereco(id, dto));
+    }
+
+    @PutMapping("/telefone")
+    public ResponseEntity<TelefoneDTO> atualizaTelefone(@RequestBody TelefoneDTO dto, @RequestParam ("id") Long id) {
+        return ResponseEntity.ok(usuarioService.atualizaTelefone(id, dto));
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
