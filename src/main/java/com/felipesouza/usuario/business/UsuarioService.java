@@ -17,11 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service    //Indica ao spring que é uma Service(onde se desenvolve as regras de negócio, camada que recebe as requisições do controller)
+@Service    //Indica que é uma Service(onde se desenvolve as regras de negócio, camada que recebe as requisições do controller)
 @RequiredArgsConstructor    //Gera um construtor que inicializa apenas os campos PRIVATE FINAL
 public class UsuarioService {
 
-    //Injeção de dependências
+    //Injeção de dependências, assim permiti usar as funções das outras classes
     private final UsuarioRepository usuarioRepository;
     private final UsuarioConverter usuarioConverter;
     private final PasswordEncoder passwordEncoder;
@@ -29,10 +29,10 @@ public class UsuarioService {
     private final EnderecoRepository enderecoRepository;
     private final TelefoneRepository telefoneRepository;
 
-    //Criação do metodo para salvar usuário, usando DTO para não expor os dados do usuário
+    //Criação do metodo para salvar usuário, usando DTO como parametro para não expor os dados do usuário
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO) {
-        emailExiste(usuarioDTO.getEmail());
-        usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha()));
+        emailExiste(usuarioDTO.getEmail()); //Verifica se o email já existe
+        usuarioDTO.setSenha(passwordEncoder.encode(usuarioDTO.getSenha())); //Codifica a senha por segurança
 
         //Converte os dados de DTO para entidade usuario e armazena na instância usuario.
         Usuario usuario = usuarioConverter.paraUsuario(usuarioDTO);
@@ -49,7 +49,7 @@ public class UsuarioService {
             if (existe) {   //Se o email existe(true), é lançado uma exceção com uma mensagem
                 throw new ConflictException("Email já cadastrado: " + email);
             }
-        } catch (ConflictException e) {     //É feito a captura da exceção e lançado uma mensagem com a causa da exceção
+        } catch (ConflictException e) {    //É feito a captura da exceção e lançado uma mensagem com a causa da exceção
             throw new ConflictException("Email já cadastrado: ", e.getCause());
         }
     }
@@ -63,9 +63,10 @@ public class UsuarioService {
     //Metodo que busca o usuario pelo email
     public UsuarioDTO buscarUsuarioPorEmail(String email) {
         try {
-            return usuarioConverter.paraUsuarioDTO(
-                    usuarioRepository.findByEmail(email)
-                            .orElseThrow(() -> new ResourceNotFoundException("Email não encontrado " + email)));
+            //Busca os dados do usuario no banco de dados pelo email e retorna uma entidade que é convertida em DTO
+            return usuarioConverter.paraUsuarioDTO(usuarioRepository.findByEmail(email)
+                    //Caso o email não esteja cadastrado lançara um erro com uma mensagem
+                    .orElseThrow(() -> new ResourceNotFoundException("Email não encontrado " + email)));
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Email não encontrado " + email);
         }
@@ -99,43 +100,70 @@ public class UsuarioService {
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }
 
+
+    //Metodo para atualizar o endereço
     public EnderecoDTO atualizaEndereco(Long idEndereco, EnderecoDTO enderecoDTO) {
 
+        //Vai no endereçoRepository para buscar os dados do endereço no banco de dados pelo idEndereco
         Endereco enderecoEntity = enderecoRepository.findById(idEndereco).orElseThrow(() ->
                 new ResourceNotFoundException("Id não encontrado " + idEndereco));
 
+        //Salva os dados já atualizados em uma variavel, utilizando o update implementado no converter
+        //recebendo como parametro o dto para os novos dados e endereçoEntity que são os dados atuais no banco de dados
         Endereco endereco = usuarioConverter.updateEndereco(enderecoDTO, enderecoEntity);
 
+        //Salvou os dados do endereço convertido e depois converteu o retorno para EnderecoDTO
         return usuarioConverter.paraEnderecoDTO(enderecoRepository.save(endereco));
     }
 
+    //Metodo para atualizar o telefone
     public TelefoneDTO atualizaTelefone(Long idTelefone, TelefoneDTO telefoneDTO) {
 
+        //Vai no telefoneRepository para buscar os dados do telefone no banco de dados pelo idTelefone
         Telefone telefoneEntity = telefoneRepository.findById(idTelefone).orElseThrow(() ->
                 new ResourceNotFoundException("Id não localizado " + idTelefone));
 
+        //Salva os dados já atualizados em uma variavel, utilizando o update implementado no converter
+        //recebendo como parametro o dto para os novos dados e telefoneEntity que são os dados atuais no banco de dados
         Telefone telefone = usuarioConverter.updateTelefone(telefoneDTO, telefoneEntity);
 
+        //Salvou os dados do endereço convertido e depois converteu o retorno para TelefoneDTO
         return usuarioConverter.paraTelefoneDTO(telefoneRepository.save(telefone));
     }
 
+    //Metodo para o cadastro de novos endereços em usuarios já cadastrados
     public EnderecoDTO cadastroEndereco(String token, EnderecoDTO dto) {
+        //Exclui a palavra Bearer , extrai o token JWT e a partir dele extrai o email
         String email = jwtUtil.extractUsername(token.substring(7));
+
+        //Vai no usuarioRepository para buscar os dados do usuario no banco de dados
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() ->
+                //Erro caso o email não estaja cadastrado, difícil de ocorrer pois o email é extraido do token autenticado
+                //Mas como na repository usamos um Optional, é obrigatório a criação de exceção de erro
                 new ResourceNotFoundException("Email não encontrado " + email));
 
+        //Recebe os dados como dto e o id do usuario autenticado e converte para uma entidade para salvar no banco de dados
         Endereco endereco = usuarioConverter.paraEnderecoEntity(dto, usuario.getId());
 
+        //Salva o novo endereço no usuario autenticado e converte o retorno em DTO novamente
         return usuarioConverter.paraEnderecoDTO(enderecoRepository.save(endereco));
     }
 
+    //Metodo para o cadastro de novos telefones em usuarios já cadastrados
     public TelefoneDTO cadastroTelefone(String token, TelefoneDTO dto) {
+        //Exclui a palavra Bearer , extrai o token JWT e a partir dele extrai o email
         String email = jwtUtil.extractUsername(token.substring(7));
+
+        //Vai no usuarioRepository para buscar os dados do usuario no banco de dados
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow(() ->
+                //Erro caso o email não estaja cadastrado, difícil de ocorrer pois o email é extraido do token autenticado
+                //Mas como na repository usamos um Optional, é obrigatório a criação de exceção de erro
                 new ResourceNotFoundException("Email não encontrado " + email));
 
+        //Recebe os dados como dto e o id do usuario autenticado e converte para uma entidade para salvar no banco de dados
         Telefone telefone = usuarioConverter.paraTelefoneEntity(dto, usuario.getId());
 
+        //Salva o novo telefone no usuario autenticado e converte o retorno para DTO novamente
         return usuarioConverter.paraTelefoneDTO(telefoneRepository.save(telefone));
     }
 }
