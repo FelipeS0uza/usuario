@@ -3,18 +3,20 @@ package com.felipesouza.usuario.infrastructure.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(name = "endereco")
-@Builder
+@Getter     //Cria todos dos getters
+@Setter     //Cria todos os setter
+@AllArgsConstructor //Cria o construtor recebendo todos os argumentos
+@NoArgsConstructor  //Cria o construtor não recebendo nenhum argumento
+@Entity     //Aponta para o spring que é uma tabela do banco de dados
+@Table(name = "endereco")    //Indica o nome da tabela, caso não indique usa como default o nome da classe
+@Builder     //Simplifica a instância de classes fornecendo os parâmetros na ordem desejada e de uma só vez.
 public class Endereco {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id     //Identificador único
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //Gera automaticamente os id's
     private Long id;
+
+    //Identifica o nome da coluna e quantidade de caracteres, entre outras informações
     @Column(name = "rua")
     private String rua;
     @Column(name = "numero")

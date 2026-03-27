@@ -16,12 +16,14 @@ public class UsuarioConverter {
     //Converte os dados para entidade Usuario recebendo o usuarioDto como parâmetro
     public Usuario paraUsuario(UsuarioDTO usuarioDTO){
         return Usuario.builder()    //Essa forma de instanciar é devido a anotação @Builder
-                .nome(usuarioDTO.getNome())     //Passar o nome do usuarioDto para setar no nome da entidade usuário
-                .email(usuarioDTO.getEmail())
+                //É passado os dados do usuarioDTO para setar nos dados do usuario entidade
+                .nome(usuarioDTO.getNome())
                 .senha(usuarioDTO.getSenha())
                 //Passa a lista de endereçosDtos para converter com os metodos paraEndereço e paraListaEndereços
                 // e setar na lista de endereços da entidade usuario
                 .enderecos(paraListaEndereco(usuarioDTO.getEnderecos()))
+                //Passa a lista de telefonesDtos para converter com os metodos paraTelefone e paraListaTelefones
+                // e setar na lista de telefones da entidade usuario
                 .telefones(paraListaTelefones(usuarioDTO.getTelefones()))
                 .build();
     }
@@ -35,7 +37,8 @@ public class UsuarioConverter {
     //Converte os dados de um ÚNICO endereço para entidade Endereço recebendo o endereçoDto como parâmetro
     public Endereco paraEndereco(EnderecoDTO enderecoDTO){
         return Endereco.builder()
-                .rua(enderecoDTO.getRua())      //Passa a rua do endereçoDto para setar na rua da entidade endereço
+                //É passado todos os dados do enderecoDTO para setar nos dados do endereco entidade
+                .rua(enderecoDTO.getRua())
                 .numero(enderecoDTO.getNumero())
                 .complemento(enderecoDTO.getComplemento())
                 .cidade(enderecoDTO.getCidade())
@@ -53,13 +56,14 @@ public class UsuarioConverter {
     //Converte os dados de um ÚNICO telefone para entidade Telefone recebendo o telefoneDto como parâmetro
     public Telefone paraTelefone(TelefoneDTO telefoneDTO){
         return Telefone.builder()
-                .numero(telefoneDTO.getNumero())    //Passa o numero do telefoneDto para setar no numero da entidade telefone
+                //É passado todos os dados do telefoneDTO para setar nos dados do telefone entidade
+                .numero(telefoneDTO.getNumero())
                 .ddd(telefoneDTO.getDdd())
                 .build();
     }
 
 
-    //ABAIXO É EXATAMENTE O CONTRÁRIO, SERÁ FEITO A CONVERSÃO DOS DADOS ENTIDADE PARA DTO
+    //ABAIXO É AO CONTRÁRIO, SERÁ FEITO A CONVERSÃO DOS DADOS ENTIDADE PARA DTO RECEBENDO ENTIDADE COMO PARAMETRO
     public UsuarioDTO paraUsuarioDTO(Usuario usuario){
         return UsuarioDTO.builder()
                 .nome(usuario.getNome())
@@ -98,6 +102,7 @@ public class UsuarioConverter {
                 .build();
     }
 
+
     //Aqui será passado os dados para atualizar, porém foi usado o operador ternário em nome, email e senha para que
     //não seja necessário informar todos os dados novamente, somente o que será alterado
     public Usuario updateUsuario(UsuarioDTO usuario, Usuario entity) {
@@ -105,9 +110,9 @@ public class UsuarioConverter {
                 //Se for informado nome para ser alterado, então enviará o novo dado,
                 //mas se não for informado nada(null) então busca o nome que já possui cadastrado na entity.
                 .nome(usuario.getNome() != null ? usuario.getNome() : entity.getNome())
-                .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .email(usuario.getEmail() != null ? usuario.getEmail() : entity.getEmail())
                 .senha(usuario.getSenha() != null ? usuario.getSenha() : entity.getSenha())
+                .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .enderecos(entity.getEnderecos())   //Por se tratar de um relacionamento, será implementado de outra forma
                 .telefones(entity.getTelefones())   //Por se tratar de um relacionamento, será implementado de outra forma
                 .build();
@@ -115,24 +120,32 @@ public class UsuarioConverter {
 
     public Endereco updateEndereco(EnderecoDTO dto, Endereco entity) {
         return Endereco.builder()
-                .id(entity.getId())
+                //Se for informado nome para ser alterado, então enviará o novo dado,
+                //mas se não for informado nada(null) então busca o nome que já possui cadastrado na entity.
                 .rua(dto.getRua() != null ? dto.getRua() : entity.getRua())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
                 .complemento(dto.getComplemento() != null ? dto.getComplemento() : entity.getComplemento())
                 .cidade(dto.getCidade() != null ? dto.getCidade() : entity.getCidade())
                 .estado(dto.getEstado() != null ? dto.getEstado() : entity.getEstado())
                 .cep(dto.getCep() != null ? dto.getCep() : entity.getCep())
+                .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .build();
     }
 
     public Telefone updateTelefone(TelefoneDTO dto, Telefone entity) {
         return Telefone.builder()
-                .id(entity.getId())
+                //Se for informado nome para ser alterado, então enviará o novo dado,
+                //mas se não for informado nada(null) então busca o nome que já possui cadastrado na entity.
                 .ddd(dto.getDdd() != null ? dto.getDdd() : entity.getDdd())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
+                .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .build();
     }
 
+
+    //Metodo para o cadastro de novos endereços
+    //Recebe o novo endereco como enderecoDTO no parametro e o idUsuario para atualizar no usuario autenticado
+    //Como o novo endereco vem na forma de dto, é feito a conversão para entidade para inserir no banco de dados
     public Endereco paraEnderecoEntity(EnderecoDTO dto, Long idUsuario){
         return Endereco.builder()
                 .rua(dto.getRua())
@@ -145,6 +158,9 @@ public class UsuarioConverter {
                 .build();
     }
 
+    //Metodo para o cadastro de novos telefones
+    //Recebe o novo telefone como telefoneDTO no parametro e o idUsuario para atualizar no usuario autenticado
+    //Como o novo telfone vem na forma de dto, é feito a conversão para entidade para inserir no banco de dados
     public Telefone paraTelefoneEntity(TelefoneDTO dto, Long idUsuario){
         return Telefone.builder()
                 .ddd(dto.getDdd())
