@@ -1,3 +1,6 @@
+//Camada ENTITY é onde representa a estrutura de dados da aplicação
+// Define as tabelas do banco de dados mapeadas para classes Java
+
 package com.felipesouza.usuario.infrastructure.entity;
 
 import jakarta.persistence.*;

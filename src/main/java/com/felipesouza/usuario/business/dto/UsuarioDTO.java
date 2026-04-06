@@ -1,5 +1,5 @@
-/* DTO - Data Transfer Object
-É um modelo de projeto usado para transportar dados, evitando passar dados sensíveis para outro serviço. */
+//Camada DTO - Data Transfer Object
+//É um modelo de projeto usado para transportar dados, evitando passar dados sensíveis para outro serviço.
 
 package com.felipesouza.usuario.business.dto;
 
