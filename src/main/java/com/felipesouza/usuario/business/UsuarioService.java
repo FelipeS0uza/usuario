@@ -1,6 +1,3 @@
-//Camada SERVICE é onde se desenvolve as regras de negócio e toda a lógica e recebe as requisições do controller
-//Intermedia a comunicação entre o Controller e o Repository
-
 package com.felipesouza.usuario.business;
 
 import com.felipesouza.usuario.business.converter.UsuarioConverter;
@@ -20,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service    //Indica ao spring que é uma Service
+@Service    //Indica ao spring que é uma Service(onde se desenvolve as regras de negócio, camada que recebe as requisições do controller)
 @RequiredArgsConstructor    //Gera um construtor que inicializa apenas os campos PRIVATE FINAL
 public class UsuarioService {
 
@@ -66,10 +63,8 @@ public class UsuarioService {
     //Metodo que busca o usuario pelo email
     public UsuarioDTO buscarUsuarioPorEmail(String email) {
         try {
-            //Busca o usuario no BD e já converte para DTO
             return usuarioConverter.paraUsuarioDTO(
                     usuarioRepository.findByEmail(email)
-                            //Caso não encontre lança um erro
                             .orElseThrow(() -> new ResourceNotFoundException("Email não encontrado " + email)));
         } catch (ResourceNotFoundException e) {
             throw new ResourceNotFoundException("Email não encontrado " + email);
@@ -90,7 +85,7 @@ public class UsuarioService {
         //Caso a senha seja informada para atualizar, então será encriptografada novamente, caso contrário nada será feito
         dto.setSenha(dto.getSenha() != null ? passwordEncoder.encode(dto.getSenha()) : null);
 
-        //Busca os dados do usuario no banco de dados
+        //Vai no usuarioRepository para buscar os dados do usuario no banco de dados
         Usuario usuarioEntity = usuarioRepository.findByEmail(email).orElseThrow(() ->
                 //Erro caso o email não estaja cadastrado, difícil de ocorrer pois o email é extraido do token autenticado
                 //Mas como na repository usamos um Optional, é obrigatório a criação de exceção de erro
@@ -100,39 +95,41 @@ public class UsuarioService {
         //recebendo como parametro o dto para os novos dados e usuarioEntity que são os dados atuais no banco de dados
         Usuario usuario = usuarioConverter.updateUsuario(dto, usuarioEntity);
 
-        //Salva os dados do usuario convertido e depois converte o retorno para UsuarioDTO
+        //Salvou os dados do usuario  convertido e depois converteu o retorno para UsuarioDTO
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
     }
 
-    //Metodo que atualiza os dados do endereço
     public EnderecoDTO atualizaEndereco(Long idEndereco, EnderecoDTO enderecoDTO) {
 
-        //Busca o endereço no banco de dados
         Endereco enderecoEntity = enderecoRepository.findById(idEndereco).orElseThrow(() ->
-                //Caso não encontre lança um erro
                 new ResourceNotFoundException("Id não encontrado " + idEndereco));
 
-        //Salva os dados já atualizados em uma variavel, utilizando o update implementado no converter
-        //recebendo como parametro o dto para os novos dados e enderecoEntity que são os dados atuais no banco de dados
         Endereco endereco = usuarioConverter.updateEndereco(enderecoDTO, enderecoEntity);
 
-        //Salva os dados do endereço convertido e depois converte o retorno para EnderecoDTO
         return usuarioConverter.paraEnderecoDTO(enderecoRepository.save(endereco));
     }
 
-    //Metodo que atualiza os dados do telefone
     public TelefoneDTO atualizaTelefone(Long idTelefone, TelefoneDTO telefoneDTO) {
 
-        //Busca o telefone no banco de dados
         Telefone telefoneEntity = telefoneRepository.findById(idTelefone).orElseThrow(() ->
-                //Caso não encontre lança um erro
                 new ResourceNotFoundException("Id não localizado " + idTelefone));
 
-        //Salva os dados já atualizados em uma variavel, utilizando o update implementado no converter
-        //recebendo como parametro o dto para os novos dados e telefoneEntity que são os dados atuais no banco de dados
         Telefone telefone = usuarioConverter.updateTelefone(telefoneDTO, telefoneEntity);
 
-        //Salvou os dados do telefone convertido e depois converte o retorno para TelefoneDTO
         return usuarioConverter.paraTelefoneDTO(telefoneRepository.save(telefone));
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
