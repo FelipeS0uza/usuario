@@ -1,3 +1,5 @@
+//Classe principal que inicia todos os microserviços
+
 package com.felipesouza.usuario;
 
 import org.springframework.boot.SpringApplication;

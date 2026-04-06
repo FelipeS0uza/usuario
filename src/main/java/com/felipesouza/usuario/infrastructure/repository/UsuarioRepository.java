@@ -1,6 +1,3 @@
-//Camda REPOSITORY é onde temos persistência e acesso ao bando de dados (CRUD)
-// Converte objetos Java (Entities) em comandos SQL e vice-versa
-
 package com.felipesouza.usuario.infrastructure.repository;
 
 import com.felipesouza.usuario.infrastructure.entity.Usuario;
@@ -10,7 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-@Repository     //Indica ao spring que é uma repository
+@Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     //Script do JPA que leva para o banco de dados e verifica se o email já existe
