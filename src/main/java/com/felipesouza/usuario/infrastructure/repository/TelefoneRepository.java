@@ -1,5 +1,5 @@
 //Camda REPOSITORY é onde temos persistência e acesso ao bando de dados (CRUD)
-// Converte objetos Java (Entities) em comandos SQL e vice-versa
+// Converte objetos Java (Entities) em comandos SQL e vice-versa.
 
 package com.felipesouza.usuario.infrastructure.repository;
 
