@@ -1,3 +1,7 @@
+//Camada CONTROLLER recebe as requisições HTTP, mapeia os endpoints, chama a Service para usar os metodos
+// e retorna respostas HTTP conforme o necessário.
+// Não deve conter lógica de negócio (cálculos, validações complexas, regras de banco)
+
 package com.felipesouza.usuario.controller;
 
 import com.felipesouza.usuario.business.UsuarioService;
@@ -22,9 +26,13 @@ public class UsuarioController {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
+    //ResponseEntity<> é uma classe que indica que o metodo vai retornar uma resposta HTTP do tipo que estiver dentro de <>
+    //RequestBody indica que estou passando um objeto no corpo da requisição
+    //RequestParam indica que estou passando um parametro no corpo da requisição
+    //RequestHeader indica que receberá no Header, na chave Authorization o valor do token
+
+
     @PostMapping    //Indica que o metodo é um POST
-    //ResponseEntity é uma classe que indica que o metodo vai retornar uma resposta HTTP
-    //RequestBody indica que estou passando o objeto Usuario no corpo da requisição
     public ResponseEntity<UsuarioDTO> salvaUsuario(@RequestBody UsuarioDTO usuarioDTO) {
         //Caso estaja tudo ok, então o usuario é salvo no banco de dados
         return ResponseEntity.ok(usuarioService.salvaUsuario(usuarioDTO));
@@ -42,7 +50,6 @@ public class UsuarioController {
     }
 
     @GetMapping   //Indica que o metodo é um GET
-    //RequestParam indica que estou passando um parametro no corpo da requisição, nesse caso o email
     //Busca os dados somente do email informado
     public ResponseEntity<UsuarioDTO> buscaUsuarioPorEmail(@RequestParam("email") String email ) {
         return ResponseEntity.ok(usuarioService.buscarUsuarioPorEmail(email));
@@ -57,39 +64,20 @@ public class UsuarioController {
 
     @PutMapping     //Indica que é um metodo PUT
     //Vai receber os dados da dto(dados atualizados) no corpo da requisição
-    //e receberá no Header o token, declarado explicitamente pois precisaremos utilizar na Controler para extrair o email.
     public ResponseEntity<UsuarioDTO> atualizaDadosUsuario(@RequestBody UsuarioDTO dto, @RequestHeader("Authorization") String token) {
         //Caso esteja tudo ok, então salva os dados atualizados do usuario no bando de dados
         return ResponseEntity.ok(usuarioService.atualizaDadosUsuario(token, dto));
     }
 
-    @PutMapping("/endereco")
+    @PutMapping("/endereco")     //Indica que é um metodo PUT, na url /endereco
     public ResponseEntity<EnderecoDTO> atualizaEndereco(@RequestBody EnderecoDTO dto, @RequestParam ("id") Long id) {
+        //Caso esteja tudo ok, então salva os dados atualizados do endereco no bando de dados
         return ResponseEntity.ok(usuarioService.atualizaEndereco(id, dto));
     }
 
-    @PutMapping("/telefone")
+    @PutMapping("/telefone")     //Indica que é um metodo PUT, na url /telefone
     public ResponseEntity<TelefoneDTO> atualizaTelefone(@RequestBody TelefoneDTO dto, @RequestParam ("id") Long id) {
+        //Caso esteja tudo ok, então salva os dados atualizados do telefone no bando de dados
         return ResponseEntity.ok(usuarioService.atualizaTelefone(id, dto));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

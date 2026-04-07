@@ -98,6 +98,7 @@ public class UsuarioConverter {
                 .build();
     }
 
+
     //Aqui será passado os dados para atualizar, porém foi usado o operador ternário em nome, email e senha para que
     //não seja necessário informar todos os dados novamente, somente o que será alterado
     public Usuario updateUsuario(UsuarioDTO usuario, Usuario entity) {
@@ -113,9 +114,10 @@ public class UsuarioConverter {
                 .build();
     }
 
+    //Será enviado dados para atualizar no dto, mas caso seja nulo então usa o dado da entity mesmo
     public Endereco updateEndereco(EnderecoDTO dto, Endereco entity) {
         return Endereco.builder()
-                .id(entity.getId())
+                .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .rua(dto.getRua() != null ? dto.getRua() : entity.getRua())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
                 .complemento(dto.getComplemento() != null ? dto.getComplemento() : entity.getComplemento())
@@ -125,28 +127,12 @@ public class UsuarioConverter {
                 .build();
     }
 
+    //Será enviado dados para atualizar no dto, mas caso seja nulo então usa o dado da entity mesmo
     public Telefone updateTelefone(TelefoneDTO dto, Telefone entity) {
         return Telefone.builder()
-                .id(entity.getId())
+                .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .ddd(dto.getDdd() != null ? dto.getDdd() : entity.getDdd())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
                 .build();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

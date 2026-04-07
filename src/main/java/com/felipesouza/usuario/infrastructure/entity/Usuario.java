@@ -18,7 +18,6 @@ import java.util.List;
 @Entity     //Aponta para o spring que é uma tabela do banco de dados
 @Table(name = "usuario")    //Indica o nome da tabela, caso não indique usa como default o nome da classe
 @Builder     //Simplifica a instância de classes fornecendo os parâmetros na ordem desejada e de uma só vez.
-
 //UserDetails é uma classe do spring security, para que o Usuario seja validado como usuario de login
 public class Usuario implements UserDetails {
 
@@ -43,19 +42,16 @@ public class Usuario implements UserDetails {
     private List<Telefone> telefones;
 
     @Override
-    //Retorna um lista vazia de permissões do usuario, ou seja, o usuario não tem acesso a nada
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();
     }
 
     @Override
-    //Retorna a senha do usuário
     public @Nullable String getPassword() {
         return senha;
     }
 
     @Override
-    //Retorna o email do usuário
     public String getUsername() {
         return email;
     }
