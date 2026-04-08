@@ -64,20 +64,37 @@ public class UsuarioController {
 
     @PutMapping     //Indica que é um metodo PUT
     //Vai receber os dados da dto(dados atualizados) no corpo da requisição
-    public ResponseEntity<UsuarioDTO> atualizaDadosUsuario(@RequestBody UsuarioDTO dto, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<UsuarioDTO> atualizaDadosUsuario(@RequestBody UsuarioDTO dto,
+                                                           @RequestHeader("Authorization") String token) {
         //Caso esteja tudo ok, então salva os dados atualizados do usuario no bando de dados
         return ResponseEntity.ok(usuarioService.atualizaDadosUsuario(token, dto));
     }
 
     @PutMapping("/endereco")     //Indica que é um metodo PUT, na url /endereco
-    public ResponseEntity<EnderecoDTO> atualizaEndereco(@RequestBody EnderecoDTO dto, @RequestParam ("id") Long id) {
+    public ResponseEntity<EnderecoDTO> atualizaEndereco(@RequestBody EnderecoDTO dto,
+                                                        @RequestParam ("id") Long id) {
         //Caso esteja tudo ok, então salva os dados atualizados do endereco no bando de dados
         return ResponseEntity.ok(usuarioService.atualizaEndereco(id, dto));
     }
 
     @PutMapping("/telefone")     //Indica que é um metodo PUT, na url /telefone
-    public ResponseEntity<TelefoneDTO> atualizaTelefone(@RequestBody TelefoneDTO dto, @RequestParam ("id") Long id) {
+    public ResponseEntity<TelefoneDTO> atualizaTelefone(@RequestBody TelefoneDTO dto,
+                                                        @RequestParam ("id") Long id) {
         //Caso esteja tudo ok, então salva os dados atualizados do telefone no bando de dados
         return ResponseEntity.ok(usuarioService.atualizaTelefone(id, dto));
+    }
+
+    @PostMapping("/endereco")     //Indica que é um metodo POST, na url /endereco
+    public ResponseEntity<EnderecoDTO> cadastraEndereco(@RequestBody EnderecoDTO dto,
+                                                        @RequestHeader ("Authorization") String token) {
+        //Caso esteja tudo ok, salva o novo endereço no usuario cadastrado
+        return ResponseEntity.ok(usuarioService.cadastroEndereco(token, dto));
+    }
+
+    @PostMapping("/telefone")     //Indica que é um metodo POST, na url /telefone
+    public ResponseEntity<TelefoneDTO> cadastraTelefone(@RequestBody TelefoneDTO dto,
+                                                        @RequestHeader ("Authorization") String token) {
+        //Caso esteja tudo ok, salva o novo telefone no usuario cadastrado
+        return ResponseEntity.ok(usuarioService.cadastroTelefone(token, dto));
     }
 }
