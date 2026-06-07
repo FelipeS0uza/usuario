@@ -53,6 +53,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/auth").permitAll()
                         // Permite acesso ao endpoint POST /usuario sem autenticação
                         .requestMatchers(HttpMethod.POST, "/usuario").permitAll()
+                        // Permite acesso ao endpoint GET /endereco/{cep} sem autenticação para uso da api ViaCep
+                        .requestMatchers(HttpMethod.GET, "/usuario/endereco/**").permitAll()
                         // Requer autenticação para qualquer endpoint que comece com /usuario/
                         .requestMatchers("/usuario/**").authenticated()
                         // Requer autenticação para todas as outras requisições
