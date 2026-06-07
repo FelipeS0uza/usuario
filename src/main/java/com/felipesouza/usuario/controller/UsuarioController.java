@@ -5,10 +5,12 @@
 package com.felipesouza.usuario.controller;
 
 import com.felipesouza.usuario.business.UsuarioService;
+import com.felipesouza.usuario.business.ViaCepService;
 import com.felipesouza.usuario.business.dto.EnderecoDTO;
 import com.felipesouza.usuario.business.dto.LoginDTORequest;
 import com.felipesouza.usuario.business.dto.TelefoneDTO;
 import com.felipesouza.usuario.business.dto.UsuarioDTO;
+import com.felipesouza.usuario.infrastructure.client.ViaCepDTO;
 import com.felipesouza.usuario.infrastructure.security.JwtUtil;
 import com.felipesouza.usuario.infrastructure.security.SecurityConfig;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,6 +35,7 @@ public class UsuarioController {
     private final UsuarioService usuarioService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
+    private final ViaCepService viaCepService;
 
     //ResponseEntity<> é uma classe que indica que o metodo vai retornar uma resposta HTTP do tipo que estiver dentro de <>
     //RequestBody indica que estou passando um objeto no corpo da requisição
@@ -147,5 +150,10 @@ public class UsuarioController {
                                                         @RequestHeader ("Authorization") String token) {
         //Caso esteja tudo ok, salva o novo telefone no usuario cadastrado
         return ResponseEntity.ok(usuarioService.cadastroTelefone(token, dto));
+    }
+
+    @GetMapping("/endereco/{cep}")
+    public ResponseEntity<ViaCepDTO> buscarDadosCep(@PathVariable("cep") String cep) {
+        return ResponseEntity.ok(viaCepService.buscarDadosEndereco(cep));
     }
 }
