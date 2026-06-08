@@ -152,7 +152,11 @@ public class UsuarioController {
         return ResponseEntity.ok(usuarioService.cadastroTelefone(token, dto));
     }
 
-    @GetMapping("/endereco/{cep}")
+    @GetMapping("/endereco/{cep}")   //Indica que o metodo é um GET
+    @Operation(summary = "Busca endereço de acordo com o cep", description = "Busca endereço de acordo com o cep")
+    @ApiResponse(responseCode = "200", description = "Endereço encontrado com sucesso")
+    @ApiResponse(responseCode = "403", description = "Endereço não encontrado")
+    @ApiResponse(responseCode = "500", description = "Erro de servidor")
     public ResponseEntity<ViaCepDTO> buscarDadosCep(@PathVariable("cep") String cep) {
         return ResponseEntity.ok(viaCepService.buscarDadosEndereco(cep));
     }
