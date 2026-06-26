@@ -5,6 +5,7 @@ package com.felipesouza.usuario.business;
 
 import com.felipesouza.usuario.business.converter.UsuarioConverter;
 import com.felipesouza.usuario.business.dto.EnderecoDTO;
+import com.felipesouza.usuario.business.dto.LoginDTORequest;
 import com.felipesouza.usuario.business.dto.TelefoneDTO;
 import com.felipesouza.usuario.business.dto.UsuarioDTO;
 import com.felipesouza.usuario.infrastructure.entity.Endereco;
@@ -12,11 +13,18 @@ import com.felipesouza.usuario.infrastructure.entity.Telefone;
 import com.felipesouza.usuario.infrastructure.entity.Usuario;
 import com.felipesouza.usuario.infrastructure.exceptions.ConflictException;
 import com.felipesouza.usuario.infrastructure.exceptions.ResourceNotFoundException;
+import com.felipesouza.usuario.infrastructure.exceptions.UnauthorizedException;
 import com.felipesouza.usuario.infrastructure.repository.EnderecoRepository;
 import com.felipesouza.usuario.infrastructure.repository.TelefoneRepository;
 import com.felipesouza.usuario.infrastructure.repository.UsuarioRepository;
 import com.felipesouza.usuario.infrastructure.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authorization.AuthorizationDeniedException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +39,7 @@ public class UsuarioService {
     private final JwtUtil jwtUtil;
     private final EnderecoRepository enderecoRepository;
     private final TelefoneRepository telefoneRepository;
+    private final AuthenticationManager authenticationManager;
 
     //Criação do metodo para salvar usuário, usando DTO para não expor os dados do usuário
     public UsuarioDTO salvaUsuario(UsuarioDTO usuarioDTO) {
@@ -42,6 +51,21 @@ public class UsuarioService {
 
         //Salva o usuário no banco de dados, e o retorno é convertido de volta para dto.
         return usuarioConverter.paraUsuarioDTO(usuarioRepository.save(usuario));
+    }
+
+    //Metodo que faz a autenticação do usuario
+    public String autenticarUsuario(LoginDTORequest dto) {
+        try{
+            //Authentication é uma classe do security que faz a autenticação do usuário e cria um objeto com os dados autenticados
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getSenha())
+            );
+            //Caso esteja tudo ok, retorna um token
+            return "Bearer " +  jwtUtil.generateToken(authentication.getName());
+        } catch (BadCredentialsException | UsernameNotFoundException | AuthorizationDeniedException e) {
+            throw new UnauthorizedException("Usuário ou senha inválidos: ", e.getCause());
+        }
+
     }
 
     //Metodo de verificação de email existente que reaproveita o metodo verificaEmailExistente e

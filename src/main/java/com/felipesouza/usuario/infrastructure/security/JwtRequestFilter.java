@@ -1,16 +1,24 @@
 package com.felipesouza.usuario.infrastructure.security;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.felipesouza.usuario.infrastructure.exceptions.dto.ErrorResponseDTO;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 // Define a classe JwtRequestFilter, que estende OncePerRequestFilter
 public class JwtRequestFilter extends OncePerRequestFilter {
@@ -30,32 +38,62 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
 
-        // Obtém o valor do header "Authorization" da requisição
-        final String authorizationHeader = request.getHeader("Authorization");
+        try {
 
-        // Verifica se o cabeçalho existe e começa com "Bearer "
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            // Extrai o token JWT do cabeçalho, ou seja, exclui a palavara Bearer
-            final String token = authorizationHeader.substring(7);
-            // Extrai o nome de usuário do token JWT
-            final String username = jwtUtil.extractUsername(token);
+            // Obtém o valor do header "Authorization" da requisição
+            final String authorizationHeader = request.getHeader("Authorization");
 
-            // Se o nome de usuário não for nulo e o usuário não estiver autenticado ainda
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                // Carrega os detalhes do usuário a partir do nome de usuário
-                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                // Valida o token JWT
-                if (jwtUtil.validateToken(token, username)) {
-                    // Cria um objeto de autenticação com as informações do usuário
-                    UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                    // Define a autenticação no contexto de segurança
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
+            // Verifica se o cabeçalho existe e começa com "Bearer "
+            if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+                // Extrai o token JWT do cabeçalho, ou seja, exclui a palavara Bearer
+                final String token = authorizationHeader.substring(7);
+                // Extrai o nome de usuário do token JWT
+                final String username = jwtUtil.extractUsername(token);
+
+                // Se o nome de usuário não for nulo e o usuário não estiver autenticado ainda
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Carrega os detalhes do usuário a partir do nome de usuário
+                    UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+                    // Valida o token JWT
+                    if (jwtUtil.validateToken(token, username)) {
+                        // Cria um objeto de autenticação com as informações do usuário
+                        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
+                        // Define a autenticação no contexto de segurança
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
                 }
             }
+
+            // Continua a cadeia de filtros, permitindo que a requisição prossiga
+            chain.doFilter(request, response);
+        } catch (ExpiredJwtException e) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write(buildError(HttpStatus.UNAUTHORIZED.value(),
+                                                e.getMessage(),
+                                               "Token expirado",
+                                                request.getRequestURI()));
+        }
+    }
+
+    private String  buildError(int status, String error, String mensagem, String path) {
+        ErrorResponseDTO errorResponseDTO = ErrorResponseDTO.builder()
+                .timestamp(LocalDateTime.now())
+                .status(status)
+                .error(error)
+                .message(mensagem)
+                .path(path)
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModules(new JavaTimeModule());
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        try {
+            return objectMapper.writeValueAsString(errorResponseDTO);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
         }
 
-        // Continua a cadeia de filtros, permitindo que a requisição prossiga
-        chain.doFilter(request, response);
     }
 }
