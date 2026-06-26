@@ -11,7 +11,6 @@ import com.felipesouza.usuario.business.dto.LoginDTORequest;
 import com.felipesouza.usuario.business.dto.TelefoneDTO;
 import com.felipesouza.usuario.business.dto.UsuarioDTO;
 import com.felipesouza.usuario.infrastructure.client.ViaCepDTO;
-import com.felipesouza.usuario.infrastructure.security.JwtUtil;
 import com.felipesouza.usuario.infrastructure.security.SecurityConfig;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,9 +18,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController     //Indica para o spring que essa classe é o controlador e que vai lidar com as requisições (Padrão REST)
@@ -33,8 +29,6 @@ public class UsuarioController {
 
     //Injeção de dependências
     private final UsuarioService usuarioService;
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
     private final ViaCepService viaCepService;
 
     //ResponseEntity<> é uma classe que indica que o metodo vai retornar uma resposta HTTP do tipo que estiver dentro de <>
@@ -59,13 +53,8 @@ public class UsuarioController {
     @ApiResponse(responseCode = "401", description = "Credenciais inválidas")
     @ApiResponse(responseCode = "500", description = "Erro de servidor")
     //No corpo da requisição foi enviado uma classe DTO para filtrar os dados enviados do Usuario, visando segurança
-    public String login(@RequestBody LoginDTORequest usuarioDTO) {
-        //Authentication é uma classe do security que faz a autenticação do usuário e cria um objeto com os dados autenticados
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(usuarioDTO.getEmail(), usuarioDTO.getSenha())
-        );
-        //Caso esteja tudo ok, retorna um token
-        return "Bearer " +  jwtUtil.generateToken(authentication.getName());
+    public ResponseEntity<String> login(@RequestBody LoginDTORequest dto) {
+        return ResponseEntity.ok(usuarioService.autenticarUsuario(dto));
     }
 
     @GetMapping   //Indica que o metodo é um GET
