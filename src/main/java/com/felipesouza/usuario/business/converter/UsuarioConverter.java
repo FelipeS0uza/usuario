@@ -117,7 +117,7 @@ public class UsuarioConverter {
     //Será enviado dados para atualizar no dto, mas caso seja nulo então usa o dado da entity mesmo
     public Endereco updateEndereco(EnderecoDTO dto, Endereco entity) {
         return Endereco.builder()
-                .usuario_id(entity.getUsuario_id())
+                .usuarioId(entity.getUsuarioId())
                 .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .rua(dto.getRua() != null ? dto.getRua() : entity.getRua())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
@@ -131,7 +131,7 @@ public class UsuarioConverter {
     //Será enviado dados para atualizar no dto, mas caso seja nulo então usa o dado da entity mesmo
     public Telefone updateTelefone(TelefoneDTO dto, Telefone entity) {
         return Telefone.builder()
-                .usuario_id(entity.getUsuario_id())
+                .usuarioId(entity.getUsuarioId())
                 .id(entity.getId())  //No id não foi usado operador ternário pois o id não pode ser alterado
                 .ddd(dto.getDdd() != null ? dto.getDdd() : entity.getDdd())
                 .numero(dto.getNumero() != null ? dto.getNumero() : entity.getNumero())
@@ -147,7 +147,7 @@ public class UsuarioConverter {
                 .cidade(dto.getCidade())
                 .estado(dto.getEstado())
                 .cep(dto.getCep())
-                .usuario_id(idUsuario)
+                .usuarioId(idUsuario)
                 .build();
     }
 
@@ -156,7 +156,7 @@ public class UsuarioConverter {
         return Telefone.builder()
                 .ddd(dto.getDdd())
                 .numero(dto.getNumero())
-                .usuario_id(idUsuario)
+                .usuarioId(idUsuario)
                 .build();
     }
 }
