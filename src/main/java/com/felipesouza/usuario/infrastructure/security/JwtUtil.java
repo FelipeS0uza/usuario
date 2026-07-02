@@ -2,31 +2,37 @@ package com.felipesouza.usuario.infrastructure.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.nio.charset.StandardCharsets;
+import javax.crypto.SecretKey;
+import java.util.Base64;
 import java.util.Date;
 
 @Service
 public class JwtUtil {
 
     // Chave secreta usada para assinar e verificar tokens JWT
-    private final String secretKey = "sua-chave-secreta-super-segura-que-deve-ser-bem-longa";
+    @Value("${jwt.secret}")
+    private String secretKey;
 
+    private SecretKey getSecretKey(){
+        byte[] key = Base64.getDecoder().decode(secretKey);
+        return Keys.hmacShaKeyFor(key);
+    }
 
     // Gera um token JWT com o nome de usuário e validade de 1 hora
     public String generateToken(String username) {
         return Jwts.builder()
                 // Define o nome de usuário como o assunto do token
-                .setSubject(username)
+                .subject(username)
                 // Define a data e hora de emissão do token
-                .setIssuedAt(new Date())
+                .issuedAt(new Date())
                 // Define a data e hora de expiração (1 hora a partir da emissão)
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 // Converte a chave secreta em bytes e assina o token com ela
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
+                .signWith(getSecretKey())
                 .compact(); // Constrói o token JWT
     }
 
@@ -34,10 +40,10 @@ public class JwtUtil {
     public Claims extractClaims(String token) {
         return Jwts.parser()
                 // Define a chave secreta para validar a assinatura do token
-                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)))
+                .verifyWith(getSecretKey())
                 .build()
-                .parseClaimsJws(token) // Analisa o token JWT e obtém as claims
-                .getBody(); // Retorna o corpo das claims
+                .parseSignedClaims(token) // Analisa o token JWT e obtém as claims
+                .getPayload(); // Retorna o corpo das claims
     }
 
     // Extrai o nome de usuário/email do token JWT
